@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DBD Project Map</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-brand">
+    <img src="assets/logo-horizontal-white.svg" alt="Destination by Design" />
+    <span class="header-title">Project Map</span>
+  </div>
+  <div class="header-actions">
+    <button class="btn ghost" id="clear-filters">Clear Filters</button>
+    <button class="btn" id="export-btn">Export PNG</button>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+    <div>
+      <h2>Search</h2>
+      <input type="text" id="search" class="search-box" placeholder="Search projects, clients, locations…" />
+    </div>
+
+    <div>
+      <div class="toggle-row">
+        <span>Show name &amp; location labels</span>
+        <div class="switch" id="label-toggle"></div>
+      </div>
+    </div>
+
+    <div>
+      <h2>Filter by Category</h2>
+      <div class="filter-group" id="category-filters"></div>
+    </div>
+
+    <div class="sidebar-stats">
+      Showing <strong id="visible-count">0</strong> of <strong id="total-count">0</strong> projects
+      &middot; <strong id="geocoded-count">0</strong> mapped (geocoding pending for the rest)
+    </div>
+  </aside>
+
+  <div class="map-wrap">
+    <div id="map"></div>
+    <div class="export-watermark">
+      <img src="assets/logo-icon.svg" alt="" />
+      <span style="font-family: var(--font-head); font-size: .8rem; font-weight: 600;">Destination by Design</span>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

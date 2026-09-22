@@ -1,0 +1,12 @@
+{
+  "name": "dbd-project-map",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive project map for Destination by Design",
+  "scripts": {
+    "sync": "node scripts/sync-projects.js"
+  },
+  "dependencies": {
+    "googleapis": "^140.0.0"
+  }
+}
