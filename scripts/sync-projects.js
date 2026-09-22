@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 
 const SHEET_ID = '1nYt3hDQwDLg-2-sobNeKAkrP2nUSIDKfj8PpOKSDKoc';
-const SHEET_RANGE = 'Sheet1!A2:P1000';
 
 const HEADERS = [
   'id', 'client', 'state', 'location', 'title', 'contractPeriod',
@@ -20,9 +19,13 @@ async function syncProjects() {
   });
 
   const sheets = google.sheets({ version: 'v4', auth });
+
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: SHEET_ID });
+  const tabTitle = meta.data.sheets[0].properties.title;
+
   const response = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
-    range: SHEET_RANGE,
+    range: `'${tabTitle}'!A2:P1000`,
   });
 
   const rows = response.data.values || [];
