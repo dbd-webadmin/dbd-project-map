@@ -1,4 +1,4 @@
-const DBD_ORANGE = '#ff6701';
+const OFFICE = { lat: 36.1980505, lng: -81.6554484, name: 'Destination by Design HQ', address: '136 Furman Road, Suite 6, Boone, NC 28607' };
 
 const map = L.map('map', {
   zoomControl: false,
@@ -7,20 +7,50 @@ const map = L.map('map', {
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 map.attributionControl.setPrefix(false);
 
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-  maxZoom: 16,
-  attribution: '&copy; <a href="https://www.esri.com">Esri</a>',
-}).addTo(map);
+const TILE_SETS = {
+  dark: {
+    base: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    ref: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+  },
+  light: {
+    base: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    ref: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+  },
+};
 
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
-  maxZoom: 16,
-}).addTo(map);
+const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+let tileBaseLayer = null;
+let tileRefLayer = null;
 
-const pinIcon = L.divIcon({
+function applyTileTheme() {
+  const set = darkModeQuery.matches ? TILE_SETS.dark : TILE_SETS.light;
+  if (tileBaseLayer) map.removeLayer(tileBaseLayer);
+  if (tileRefLayer) map.removeLayer(tileRefLayer);
+  tileBaseLayer = L.tileLayer(set.base, {
+    maxZoom: 16,
+    attribution: '&copy; <a href="https://www.esri.com">Esri</a>',
+  }).addTo(map);
+  tileRefLayer = L.tileLayer(set.ref, { maxZoom: 16 }).addTo(map);
+}
+
+applyTileTheme();
+darkModeQuery.addEventListener('change', applyTileTheme);
+
+function pinIcon(count) {
+  const badge = count > 1 ? `<span class="pin-badge">${count > 99 ? '99+' : count}</span>` : '';
+  return L.divIcon({
+    className: '',
+    html: `<div class="pin-dot">${badge}</div>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 14],
+  });
+}
+
+const officeIcon = L.divIcon({
   className: '',
-  html: '<div class="pin-dot"></div>',
-  iconSize: [14, 14],
-  iconAnchor: [7, 14],
+  html: '<div class="pin-office"><img src="assets/logo-icon.svg" alt="" /></div>',
+  iconSize: [22, 22],
+  iconAnchor: [11, 20],
 });
 
 let allProjects = [];
@@ -33,7 +63,7 @@ function categoryOf(p) {
   return p.category && p.category.trim() ? p.category.trim() : 'Uncategorized';
 }
 
-function popupHtml(p) {
+function projectPopupInner(p) {
   const links = [];
   if (p.websiteLink) links.push(`<a href="${escAttr(withProto(p.websiteLink))}" target="_blank" rel="noopener">Website</a>`);
   if (p.planLink) links.push(`<a href="${escAttr(withProto(p.planLink))}" target="_blank" rel="noopener">Plan/Proposal</a>`);
@@ -45,6 +75,16 @@ function popupHtml(p) {
     ${p.narrative ? `<div class="popup-narrative">${esc(truncate(p.narrative, 260))}</div>` : ''}
     ${contact ? `<div class="popup-contact">${esc(contact)}</div>` : ''}
     ${links.length ? `<div class="popup-links">${links.join('')}</div>` : ''}
+  `;
+}
+
+function popupHtml(group) {
+  if (group.length === 1) return projectPopupInner(group[0]);
+  const loc = [group[0].location, group[0].state].filter(Boolean).join(', ');
+  const items = group.map(p => `<div class="popup-group-item">${projectPopupInner(p)}</div>`).join('');
+  return `
+    <div class="popup-group-header">${group.length} projects near ${esc(loc)}</div>
+    <div class="popup-group-list">${items}</div>
   `;
 }
 
@@ -63,12 +103,17 @@ function shortLocation(p) {
   return p.state ? `${loc}, ${p.state}` : loc;
 }
 
+function coordKey(p) {
+  return `${p.lat.toFixed(4)},${p.lng.toFixed(4)}`;
+}
+
 function render() {
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
   const term = searchTerm.trim().toLowerCase();
 
+  const groups = new Map();
   allProjects.forEach(p => {
     if (p.lat == null || p.lng == null || isNaN(p.lat) || isNaN(p.lng)) return;
     const cat = categoryOf(p);
@@ -77,12 +122,22 @@ function render() {
       const hay = `${p.title} ${p.client} ${p.location} ${p.state} ${p.category}`.toLowerCase();
       if (!hay.includes(term)) return;
     }
+    const key = coordKey(p);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(p);
+  });
 
-    const marker = L.marker([p.lat, p.lng], { icon: pinIcon }).addTo(map);
-    marker.bindPopup(popupHtml(p));
+  let visibleCount = 0;
+  groups.forEach(group => {
+    const p0 = group[0];
+    visibleCount += group.length;
+
+    const marker = L.marker([p0.lat, p0.lng], { icon: pinIcon(group.length) }).addTo(map);
+    marker.bindPopup(popupHtml(group));
 
     if (labelsOn) {
-      marker.bindTooltip(shortLocation(p), {
+      const label = group.length > 1 ? `${shortLocation(p0)} (${group.length})` : shortLocation(p0);
+      marker.bindTooltip(label, {
         permanent: true,
         direction: 'top',
         offset: [0, -12],
@@ -92,7 +147,7 @@ function render() {
     markers.push(marker);
   });
 
-  document.getElementById('visible-count').textContent = markers.length;
+  document.getElementById('visible-count').textContent = visibleCount;
 }
 
 function buildFilters(projects) {
@@ -123,6 +178,18 @@ function buildFilters(projects) {
     });
 }
 
+function addOfficeMarker() {
+  const marker = L.marker([OFFICE.lat, OFFICE.lng], { icon: officeIcon, zIndexOffset: 1000 }).addTo(map);
+  marker.bindPopup(`
+    <div class="popup-title">${esc(OFFICE.name)}</div>
+    <div class="popup-loc">${esc(OFFICE.address)}</div>
+  `);
+  document.getElementById('office-watermark').addEventListener('click', () => {
+    map.flyTo([OFFICE.lat, OFFICE.lng], 15, { duration: 1.1 });
+    marker.openPopup();
+  });
+}
+
 async function init() {
   try {
     const res = await fetch('data/projects.json', { cache: 'no-store' });
@@ -139,6 +206,7 @@ async function init() {
 
   buildFilters(allProjects);
   render();
+  addOfficeMarker();
 
   document.getElementById('label-toggle').addEventListener('click', (e) => {
     labelsOn = !labelsOn;
@@ -168,7 +236,8 @@ async function exportMap() {
   btn.disabled = true;
   try {
     const target = document.querySelector('.map-wrap');
-    const canvas = await html2canvas(target, { useCORS: true, backgroundColor: '#1b1b1b' });
+    const bg = getComputedStyle(document.body).getPropertyValue('--bg-map-fallback').trim() || '#1b1b1b';
+    const canvas = await html2canvas(target, { useCORS: true, backgroundColor: bg });
     const link = document.createElement('a');
     link.download = `dbd-project-map-${new Date().toISOString().slice(0, 10)}.png`;
     link.href = canvas.toDataURL('image/png');

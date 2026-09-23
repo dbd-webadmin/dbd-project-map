@@ -10,13 +10,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="assets/style.css?v=2" />
+<link rel="stylesheet" href="assets/style.css?v=3" />
 </head>
 <body>
 
 <header class="site-header">
   <div class="header-brand">
-    <img src="assets/logo-horizontal-white.svg" alt="Destination by Design" />
+    <img class="logo-light" src="assets/logo-horizontal-dark.svg" alt="Destination by Design" />
+    <img class="logo-dark" src="assets/logo-horizontal-white.svg" alt="Destination by Design" />
     <span class="header-title">Project Map</span>
   </div>
   <div class="header-actions">
@@ -52,15 +53,15 @@
 
   <div class="map-wrap">
     <div id="map"></div>
-    <div class="export-watermark">
+    <div class="export-watermark" id="office-watermark" title="See our office">
       <img src="assets/logo-icon.svg" alt="" />
-      <span style="font-family: var(--font-head); font-size: .8rem; font-weight: 600;">Destination by Design</span>
+      <span>Destination by Design</span>
     </div>
   </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script src="assets/app.js?v=4"></script>
+<script src="assets/app.js?v=5"></script>
 </body>
 </html>
