@@ -2,13 +2,15 @@ const DBD_ORANGE = '#ff6701';
 
 const map = L.map('map', {
   zoomControl: false,
-  attributionControl: false,
 }).setView([37.5, -82], 6);
 
 L.control.zoom({ position: 'bottomright' }).addTo(map);
+map.attributionControl.setPrefix(false);
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_matter/{z}/{x}/{y}{r}.png', {
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   maxZoom: 19,
+  subdomains: 'abcd',
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
 }).addTo(map);
 
 const pinIcon = L.divIcon({
