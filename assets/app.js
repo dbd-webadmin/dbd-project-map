@@ -1,5 +1,17 @@
 const OFFICE = { lat: 36.1980505, lng: -81.6554484, name: 'Destination by Design HQ', address: '136 Furman Road, Suite 6, Boone, NC 28607' };
 
+const STATE_NAME_TO_ABBR = {
+  'Alabama':'AL','Alaska':'AK','Arizona':'AZ','Arkansas':'AR','California':'CA','Colorado':'CO',
+  'Connecticut':'CT','Delaware':'DE','District of Columbia':'DC','Florida':'FL','Georgia':'GA',
+  'Hawaii':'HI','Idaho':'ID','Illinois':'IL','Indiana':'IN','Iowa':'IA','Kansas':'KS','Kentucky':'KY',
+  'Louisiana':'LA','Maine':'ME','Maryland':'MD','Massachusetts':'MA','Michigan':'MI','Minnesota':'MN',
+  'Mississippi':'MS','Missouri':'MO','Montana':'MT','Nebraska':'NE','Nevada':'NV','New Hampshire':'NH',
+  'New Jersey':'NJ','New Mexico':'NM','New York':'NY','North Carolina':'NC','North Dakota':'ND',
+  'Ohio':'OH','Oklahoma':'OK','Oregon':'OR','Pennsylvania':'PA','Puerto Rico':'PR','Rhode Island':'RI',
+  'South Carolina':'SC','South Dakota':'SD','Tennessee':'TN','Texas':'TX','Utah':'UT','Vermont':'VT',
+  'Virginia':'VA','Washington':'WA','West Virginia':'WV','Wisconsin':'WI','Wyoming':'WY',
+};
+
 const map = L.map('map', {
   zoomControl: false,
 }).setView([37.5, -82], 6);
@@ -28,7 +40,7 @@ function applyTileTheme() {
   if (tileRefLayer) map.removeLayer(tileRefLayer);
   tileBaseLayer = L.tileLayer(set.base, {
     maxZoom: 16,
-    attribution: '&copy; <a href="https://www.esri.com">Esri</a>',
+    attribution: '&copy; <a href="https://www.esri.com">Esri</a> &middot; State boundaries: US Census Bureau',
   }).addTo(map);
   tileRefLayer = L.tileLayer(set.ref, { maxZoom: 16 }).addTo(map);
 }
@@ -58,9 +70,69 @@ let markers = [];
 let labelsOn = false;
 let selectedCategories = new Set();
 let searchTerm = '';
+let statesGeoJson = null;
+let choroplethLayer = null;
 
 function categoryOf(p) {
   return p.category && p.category.trim() ? p.category.trim() : 'Uncategorized';
+}
+
+function passesFilters(p) {
+  const cat = categoryOf(p);
+  if (selectedCategories.size && !selectedCategories.has(cat)) return false;
+  const term = searchTerm.trim().toLowerCase();
+  if (term) {
+    const hay = `${p.title} ${p.client} ${p.location} ${p.state} ${p.category}`.toLowerCase();
+    if (!hay.includes(term)) return false;
+  }
+  return true;
+}
+
+function computeStateCounts() {
+  const counts = {};
+  allProjects.forEach(p => {
+    if (!p.state || !passesFilters(p)) return;
+    counts[p.state] = (counts[p.state] || 0) + 1;
+  });
+  return counts;
+}
+
+function stateFillOpacity(count, maxCount) {
+  if (!count) return 0;
+  const floor = 0.12;
+  const intensity = Math.sqrt(count) / Math.sqrt(maxCount || 1);
+  return floor + (0.85 - floor) * intensity;
+}
+
+function renderChoropleth() {
+  if (!statesGeoJson) return;
+  if (choroplethLayer) map.removeLayer(choroplethLayer);
+
+  const counts = computeStateCounts();
+  const maxCount = Math.max(0, ...Object.values(counts));
+
+  choroplethLayer = L.geoJSON(statesGeoJson, {
+    style: (feature) => {
+      const abbr = STATE_NAME_TO_ABBR[feature.properties.name];
+      const count = counts[abbr] || 0;
+      return {
+        fillColor: '#ff6701',
+        fillOpacity: stateFillOpacity(count, maxCount),
+        color: 'rgba(255,103,1,.45)',
+        weight: 1,
+        interactive: !!count,
+      };
+    },
+    onEachFeature: (feature, layer) => {
+      const abbr = STATE_NAME_TO_ABBR[feature.properties.name];
+      const count = counts[abbr] || 0;
+      if (!count) return;
+      layer.bindTooltip(`${feature.properties.name} — ${count} project${count === 1 ? '' : 's'}`, {
+        sticky: true,
+        className: 'map-label',
+      });
+    },
+  }).addTo(map);
 }
 
 function projectPopupInner(p) {
@@ -111,17 +183,10 @@ function render() {
   markers.forEach(m => map.removeLayer(m));
   markers = [];
 
-  const term = searchTerm.trim().toLowerCase();
-
   const groups = new Map();
   allProjects.forEach(p => {
     if (p.lat == null || p.lng == null || isNaN(p.lat) || isNaN(p.lng)) return;
-    const cat = categoryOf(p);
-    if (selectedCategories.size && !selectedCategories.has(cat)) return;
-    if (term) {
-      const hay = `${p.title} ${p.client} ${p.location} ${p.state} ${p.category}`.toLowerCase();
-      if (!hay.includes(term)) return;
-    }
+    if (!passesFilters(p)) return;
     const key = coordKey(p);
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(p);
@@ -148,6 +213,7 @@ function render() {
   });
 
   document.getElementById('visible-count').textContent = visibleCount;
+  renderChoropleth();
 }
 
 function buildFilters(projects) {
@@ -192,12 +258,16 @@ function addOfficeMarker() {
 
 async function init() {
   try {
-    const res = await fetch('data/projects.json', { cache: 'no-store' });
-    const data = await res.json();
+    const [projRes, stateRes] = await Promise.all([
+      fetch('data/projects.json', { cache: 'no-store' }),
+      fetch('data/us-states.json', { cache: 'no-store' }),
+    ]);
+    const data = await projRes.json();
     allProjects = data.projects || [];
+    statesGeoJson = await stateRes.json();
   } catch (e) {
-    console.error('Failed to load project data', e);
-    allProjects = [];
+    console.error('Failed to load project or state boundary data', e);
+    allProjects = allProjects || [];
   }
 
   const withCoords = allProjects.filter(p => p.lat != null && p.lng != null && !isNaN(p.lat) && !isNaN(p.lng));
