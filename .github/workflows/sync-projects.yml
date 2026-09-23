@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
 
     steps:
       - uses: actions/checkout@v4
@@ -27,9 +28,24 @@ jobs:
         run: node scripts/sync-projects.js
 
       - name: Commit and push updated data
+        id: commit
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/projects.json
-          git diff --cached --quiet || git commit -m "chore: sync projects from Google Sheet"
-          git push
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "chore: sync projects from Google Sheet"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # A push made with the default GITHUB_TOKEN doesn't trigger other
+      # workflows (GitHub's loop-prevention rule), so pages-deploy.yml's
+      # `on: push` never fires for this commit. Trigger it explicitly instead.
+      - name: Trigger Pages redeploy
+        if: steps.commit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages-deploy.yml --repo ${{ github.repository }}
