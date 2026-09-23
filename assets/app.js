@@ -57,6 +57,12 @@ function esc(s) {
 function escAttr(s) { return esc(s); }
 function truncate(s, n) { return s.length > n ? s.slice(0, n).trim() + '…' : s; }
 
+function shortLocation(p) {
+  let loc = (p.location || '').replace(/\s+(City|Town|Village|County)$/i, '').trim();
+  if (!loc) return p.state || '';
+  return p.state ? `${loc}, ${p.state}` : loc;
+}
+
 function render() {
   markers.forEach(m => map.removeLayer(m));
   markers = [];
@@ -76,7 +82,7 @@ function render() {
     marker.bindPopup(popupHtml(p));
 
     if (labelsOn) {
-      marker.bindTooltip(`${p.title}${p.location ? ' · ' + p.location : ''}`, {
+      marker.bindTooltip(shortLocation(p), {
         permanent: true,
         direction: 'top',
         offset: [0, -12],
