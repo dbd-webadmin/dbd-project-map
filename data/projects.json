@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-23T14:29:21.633Z",
+  "generatedAt": "2026-09-23T14:42:04.619Z",
   "count": 324,
   "projects": [
     {
@@ -1725,8 +1725,8 @@
       "contactEmail": "",
       "websiteLink": "",
       "planLink": "",
-      "lat": 35.1615493,
-      "lng": -77.0471699,
+      "lat": 35.3337279,
+      "lng": -81.8649245,
       "source": "Active",
       "notes": "project update presentations give clear partner and budget detail; no external client contact found"
     },
@@ -4929,8 +4929,8 @@
       "contactEmail": "",
       "websiteLink": "",
       "planLink": "",
-      "lat": 35.2590371,
-      "lng": -77.6484879,
+      "lat": 35.9140196,
+      "lng": -81.5389849,
       "source": "Legacy",
       "notes": "From legacy archive (NC)"
     },
@@ -5649,8 +5649,8 @@
       "contactEmail": "jwheelock@lenoir-nc.gov",
       "websiteLink": "",
       "planLink": "",
-      "lat": 35.2590371,
-      "lng": -77.6484879,
+      "lat": 35.9140196,
+      "lng": -81.5389849,
       "source": "Legacy",
       "notes": "From legacy archive (X_Legacy Projects / current projects); Clear grant closeout document listing DbD (Taylor Gupton) as consultant/preparer; contact info is for the grantee organization's project manager."
     },
