@@ -89,7 +89,6 @@ function render() {
 function buildFilters(projects) {
   const counts = {};
   projects.forEach(p => {
-    if (p.lat == null || p.lng == null) return;
     const cat = categoryOf(p);
     counts[cat] = (counts[cat] || 0) + 1;
   });
