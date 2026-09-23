@@ -99,8 +99,8 @@ function computeStateCounts() {
 
 function stateFillOpacity(count, maxCount) {
   if (!count) return 0;
-  const floor = 0.12;
-  const intensity = Math.sqrt(count) / Math.sqrt(maxCount || 1);
+  const floor = 0.05;
+  const intensity = count / (maxCount || 1);
   return floor + (0.85 - floor) * intensity;
 }
 
