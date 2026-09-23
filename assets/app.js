@@ -146,6 +146,27 @@ function stateFillOpacity(rank, maxRank) {
   return floor + (0.85 - floor) * intensity;
 }
 
+// Above this zoom level the choropleth fades out entirely -- once you're
+// zoomed into a state/metro cluster, a flat state-colored fill just covers
+// the basemap and pins you're trying to look at.
+const CHOROPLETH_ZOOM_THRESHOLD = 8;
+let currentChoroplethStyleFn = null;
+
+function choroplethStyleFn(counts, rankByCount, maxRank) {
+  return (feature) => {
+    const abbr = STATE_NAME_TO_ABBR[feature.properties.name];
+    const count = counts[abbr] || 0;
+    const zoomedIn = map.getZoom() >= CHOROPLETH_ZOOM_THRESHOLD;
+    return {
+      fillColor: '#ff6701',
+      fillOpacity: (!zoomedIn && count) ? stateFillOpacity(rankByCount.get(count), maxRank) : 0,
+      color: zoomedIn ? 'rgba(255,103,1,0)' : 'rgba(255,103,1,.45)',
+      weight: 1,
+      interactive: !zoomedIn && !!count,
+    };
+  };
+}
+
 function renderChoropleth() {
   if (!statesGeoJson) return;
   if (choroplethLayer) map.removeLayer(choroplethLayer);
@@ -154,19 +175,10 @@ function renderChoropleth() {
   const uniqueCounts = [...new Set(Object.values(counts))].sort((a, b) => b - a);
   const rankByCount = new Map(uniqueCounts.map((c, i) => [c, i]));
   const maxRank = Math.max(1, uniqueCounts.length - 1);
+  currentChoroplethStyleFn = choroplethStyleFn(counts, rankByCount, maxRank);
 
   choroplethLayer = L.geoJSON(statesGeoJson, {
-    style: (feature) => {
-      const abbr = STATE_NAME_TO_ABBR[feature.properties.name];
-      const count = counts[abbr] || 0;
-      return {
-        fillColor: '#ff6701',
-        fillOpacity: count ? stateFillOpacity(rankByCount.get(count), maxRank) : 0,
-        color: 'rgba(255,103,1,.45)',
-        weight: 1,
-        interactive: !!count,
-      };
-    },
+    style: currentChoroplethStyleFn,
     onEachFeature: (feature, layer) => {
       const abbr = STATE_NAME_TO_ABBR[feature.properties.name];
       const count = counts[abbr] || 0;
@@ -178,6 +190,12 @@ function renderChoropleth() {
     },
   }).addTo(map);
 }
+
+map.on('zoomend', () => {
+  if (choroplethLayer && currentChoroplethStyleFn) {
+    choroplethLayer.setStyle(currentChoroplethStyleFn);
+  }
+});
 
 function projectPopupInner(p) {
   const links = [];
@@ -347,6 +365,26 @@ async function init() {
     setTheme(isDarkMode() ? 'light' : 'dark');
   });
   updateThemeToggleIcon();
+
+  const hamburger = document.getElementById('hamburger-toggle');
+  const actionsMenu = document.getElementById('header-actions');
+  hamburger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = actionsMenu.classList.toggle('open');
+    hamburger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  actionsMenu.addEventListener('click', (e) => {
+    if (e.target.closest('button')) {
+      actionsMenu.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (!actionsMenu.contains(e.target) && e.target !== hamburger && !hamburger.contains(e.target)) {
+      actionsMenu.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+    }
+  });
 }
 
 async function exportMap() {

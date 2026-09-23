@@ -106,6 +106,21 @@ a { color: inherit; }
 }
 .header-actions { display: flex; align-items: center; gap: 10px; }
 
+.hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.hamburger:hover { border-color: var(--orange); color: var(--orange); }
+
 .theme-toggle {
   display: flex;
   align-items: center;
@@ -383,5 +398,38 @@ a { color: inherit; }
 
 @media (max-width: 760px) {
   .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-  .sidebar { flex-direction: row; flex-wrap: wrap; max-height: 40vh; }
+
+  /* Sidebar becomes a top panel; its sections still stack normally, but the
+     category chip LIST wraps into pills below instead of one-per-line so it
+     doesn't eat the whole panel height. */
+  .sidebar { flex-direction: column; max-height: 45vh; }
+  .filter-group { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  .filter-chip {
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    gap: 6px;
+    padding: 6px 10px;
+  }
+
+  /* Header collapses to a hamburger menu: brand stays visible, the toggle +
+     Clear Filters + Export PNG buttons move into a dropdown panel. */
+  .hamburger { display: flex; }
+  .header-actions {
+    display: none;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-subtle);
+    border-top: none;
+    padding: 12px;
+    box-shadow: var(--shadow);
+    z-index: 600;
+    min-width: 200px;
+  }
+  .header-actions.open { display: flex; }
+  .header-actions .theme-toggle { align-self: flex-start; }
 }
