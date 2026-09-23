@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-09-23T14:09:42.082Z",
+  "generatedAt": "2026-09-23T14:29:21.633Z",
   "count": 324,
   "projects": [
     {
       "id": "P001",
       "client": "Visum Development Group",
       "state": "NY",
-      "location": "ithaca City",
+      "location": "Ithaca City",
       "title": "NOTA Neighborhood Association Branding",
       "contractPeriod": "~2022",
       "category": "Branding",
@@ -2274,8 +2274,8 @@
       "id": "P142",
       "client": "OVTA",
       "state": "NC",
-      "location": "elkin",
-      "title": "kerrscott",
+      "location": "Elkin",
+      "title": "Kerr Scott",
       "contractPeriod": "Unknown",
       "category": "Trail Planning/Engineering",
       "narrative": "DbD authored the master plan for the Elkin-to-W. Kerr Scott Reservoir segment of the Overmountain Victory National Historic Trail, part of a 330-mile trail commemorating the Revolutionary War patriot militia's march to the Battle of Kings Mountain. The plan included site analysis, landowner sentiment mapping, trail renderings, and an implementation and funding strategy developed with the Yadkin Valley Greenway Council, Elkin Valley Trails Association, and partner towns and counties across Surry, Wilkes, and Yadkin counties.",
