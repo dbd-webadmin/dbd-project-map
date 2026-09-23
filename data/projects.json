@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-23T13:08:27.846Z",
+  "generatedAt": "2026-09-23T13:14:29.209Z",
   "count": 324,
   "projects": [
     {
@@ -15,8 +15,8 @@
       "contactEmail": "",
       "websiteLink": "",
       "planLink": "",
-      "lat": null,
-      "lng": null,
+      "lat": 42.4374175,
+      "lng": -76.5483724,
       "source": "Active",
       "notes": "clear scope description in brand strategy document; no contact info found"
     },
@@ -33,8 +33,8 @@
       "contactEmail": "bdcadmin@blueridgebdc.org",
       "websiteLink": "",
       "planLink": "",
-      "lat": null,
-      "lng": null,
+      "lat": 36.5054718,
+      "lng": -81.1207633,
       "source": "Active",
       "notes": "scope drawn from two related proposals; contact info fragmentary (only a general Blue Ridge Business Development Center email found)"
     },
@@ -51,8 +51,8 @@
       "contactEmail": "",
       "websiteLink": "",
       "planLink": "",
-      "lat": null,
-      "lng": null,
+      "lat": 36.5029951,
+      "lng": -81.1340843,
       "source": "Active",
       "notes": "clear scope in signed contract; signature/contact fields were blank in extracted text"
     },
@@ -69,8 +69,8 @@
       "contactEmail": "",
       "websiteLink": "",
       "planLink": "",
-      "lat": null,
-      "lng": null,
+      "lat": 36.1072175,
+      "lng": -82.444068,
       "source": "Active",
       "notes": "table of contents and acknowledgments gave clear scope; no single named contact/email found in extracted text"
     },
@@ -87,8 +87,8 @@
       "contactEmail": "",
       "websiteLink": "",
       "planLink": "",
-      "lat": null,
-      "lng": null,
+      "lat": 36.1072175,
+      "lng": -82.444068,
       "source": "Active",
       "notes": "clear scope and findings in summary report; no contact info found"
     },
@@ -105,8 +105,8 @@
       "contactEmail": "",
       "websiteLink": "",
       "planLink": "",
-      "lat": null,
-      "lng": null,
+      "lat": 35.1212409,
+      "lng": -81.5159246,
       "source": "Active",
       "notes": "clear multi-part scope of work; no contact info found"
     },
@@ -123,8 +123,8 @@
       "contactEmail": "",
       "websiteLink": "FHGOV.COM",
       "planLink": "",
-      "lat": null,
-      "lng": null,
+      "lat": 42.4853125,
+      "lng": -83.3771553,
       "source": "Active",
       "notes": "clear scope and messaging in final brand guide; no named contact found"
     },
@@ -141,8 +141,8 @@
       "contactEmail": "",
       "websiteLink": "",
       "planLink": "",
-      "lat": null,
-      "lng": null,
+      "lat": 33.8986841,
+      "lng": -81.275054,
       "source": "Active",
       "notes": ""
     },
@@ -159,8 +159,8 @@
       "contactEmail": "gmorris@twp.northville.mi.us",
       "websiteLink": "",
       "planLink": "",
-      "lat": null,
-      "lng": null,
+      "lat": 42.4310816,
+      "lng": -83.4832339,
       "source": "Active",
       "notes": "clear scope from RFP and DbD proposal; contact is the township's RFP point of contact"
     },
@@ -177,8 +177,8 @@
       "contactEmail": "",
       "websiteLink": "",
       "planLink": "",
-      "lat": null,
-      "lng": null,
+      "lat": 35.1595182,
+      "lng": -84.8766115,
       "source": "Active",
       "notes": ""
     },
