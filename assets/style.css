@@ -27,8 +27,10 @@
   --header-title-border: #d5d5d1;
 }
 
+/* System dark preference applies unless the user has explicitly picked
+   light via the header toggle (data-theme="light" then wins). */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg-page:      #28282b;
     --bg-panel:     #000000;
     --bg-input:     #151515;
@@ -42,6 +44,22 @@
     --popup-narrative: #ddd;
     --header-title-border: #444444;
   }
+}
+
+/* Explicit dark choice from the header toggle wins regardless of system. */
+:root[data-theme="dark"] {
+  --bg-page:      #28282b;
+  --bg-panel:     #000000;
+  --bg-input:     #151515;
+  --bg-map-fallback: #1b1b1b;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --text-tertiary:  #777777;
+  --border-subtle: #2a2a2a;
+  --border-strong: #333333;
+  --control-bg:   #444444;
+  --popup-narrative: #ddd;
+  --header-title-border: #444444;
 }
 
 html { font-size: 15px; }
@@ -72,9 +90,11 @@ a { color: inherit; }
 .header-brand img { height: 26px; display: block; }
 .header-brand img.logo-dark { display: none; }
 @media (prefers-color-scheme: dark) {
-  .header-brand img.logo-light { display: none; }
-  .header-brand img.logo-dark { display: block; }
+  :root:not([data-theme="light"]) .header-brand img.logo-light { display: none; }
+  :root:not([data-theme="light"]) .header-brand img.logo-dark { display: block; }
 }
+:root[data-theme="dark"] .header-brand img.logo-light { display: none; }
+:root[data-theme="dark"] .header-brand img.logo-dark { display: block; }
 .header-title {
   font-family: var(--font-head);
   font-weight: 500;
@@ -85,6 +105,25 @@ a { color: inherit; }
   padding-left: 12px;
 }
 .header-actions { display: flex; align-items: center; gap: 10px; }
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color .15s, color .15s;
+}
+.theme-toggle:hover { border-color: var(--orange); color: var(--orange); }
+.theme-toggle .icon-moon { display: none; }
+.theme-toggle.is-dark .icon-sun { display: none; }
+.theme-toggle.is-dark .icon-moon { display: block; }
 
 .btn {
   font-family: var(--font-body);

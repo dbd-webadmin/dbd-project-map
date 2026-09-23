@@ -34,8 +34,15 @@ const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
 let tileBaseLayer = null;
 let tileRefLayer = null;
 
+function isDarkMode() {
+  const override = localStorage.getItem('dbd-map-theme');
+  if (override === 'light') return false;
+  if (override === 'dark') return true;
+  return darkModeQuery.matches;
+}
+
 function applyTileTheme() {
-  const set = darkModeQuery.matches ? TILE_SETS.dark : TILE_SETS.light;
+  const set = isDarkMode() ? TILE_SETS.dark : TILE_SETS.light;
   if (tileBaseLayer) map.removeLayer(tileBaseLayer);
   if (tileRefLayer) map.removeLayer(tileRefLayer);
   tileBaseLayer = L.tileLayer(set.base, {
@@ -45,8 +52,37 @@ function applyTileTheme() {
   tileRefLayer = L.tileLayer(set.ref, { maxZoom: 16 }).addTo(map);
 }
 
+function applyThemeAttribute() {
+  const override = localStorage.getItem('dbd-map-theme');
+  if (override === 'light' || override === 'dark') {
+    document.documentElement.setAttribute('data-theme', override);
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+}
+
+function setTheme(theme) {
+  // theme: 'light' | 'dark'
+  localStorage.setItem('dbd-map-theme', theme);
+  applyThemeAttribute();
+  applyTileTheme();
+  updateThemeToggleIcon();
+}
+
+function updateThemeToggleIcon() {
+  const btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  btn.classList.toggle('is-dark', isDarkMode());
+}
+
+applyThemeAttribute();
 applyTileTheme();
-darkModeQuery.addEventListener('change', applyTileTheme);
+darkModeQuery.addEventListener('change', () => {
+  if (!localStorage.getItem('dbd-map-theme')) {
+    applyTileTheme();
+    updateThemeToggleIcon();
+  }
+});
 
 function pinIcon(count) {
   const badge = count > 1 ? `<span class="pin-badge">${count > 99 ? '99+' : count}</span>` : '';
@@ -97,10 +133,16 @@ function computeStateCounts() {
   return counts;
 }
 
-function stateFillOpacity(count, maxCount) {
-  if (!count) return 0;
-  const floor = 0.05;
-  const intensity = count / (maxCount || 1);
+function stateFillOpacity(rank, maxRank) {
+  // Rank-based, not value-based: states are ordered strictly by how many
+  // projects they have, then spread evenly across the opacity range by
+  // rank position. This ignores the size of the gap between counts (e.g.
+  // NC's 208 vs VA's 24) entirely -- a magnitude-based scale (linear, sqrt,
+  // log) always lets one extreme outlier compress everyone else into a
+  // narrow band. Rank order guarantees N states with data render as N
+  // visibly distinct, evenly-spaced tiers no matter how skewed the counts are.
+  const floor = 0.06;
+  const intensity = 1 - rank / (maxRank || 1);
   return floor + (0.85 - floor) * intensity;
 }
 
@@ -109,7 +151,9 @@ function renderChoropleth() {
   if (choroplethLayer) map.removeLayer(choroplethLayer);
 
   const counts = computeStateCounts();
-  const maxCount = Math.max(0, ...Object.values(counts));
+  const uniqueCounts = [...new Set(Object.values(counts))].sort((a, b) => b - a);
+  const rankByCount = new Map(uniqueCounts.map((c, i) => [c, i]));
+  const maxRank = Math.max(1, uniqueCounts.length - 1);
 
   choroplethLayer = L.geoJSON(statesGeoJson, {
     style: (feature) => {
@@ -117,7 +161,7 @@ function renderChoropleth() {
       const count = counts[abbr] || 0;
       return {
         fillColor: '#ff6701',
-        fillOpacity: stateFillOpacity(count, maxCount),
+        fillOpacity: count ? stateFillOpacity(rankByCount.get(count), maxRank) : 0,
         color: 'rgba(255,103,1,.45)',
         weight: 1,
         interactive: !!count,
@@ -298,6 +342,11 @@ async function init() {
   });
 
   document.getElementById('export-btn').addEventListener('click', exportMap);
+
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    setTheme(isDarkMode() ? 'light' : 'dark');
+  });
+  updateThemeToggleIcon();
 }
 
 async function exportMap() {
