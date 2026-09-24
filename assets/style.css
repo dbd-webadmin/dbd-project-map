@@ -340,7 +340,7 @@ a { color: inherit; }
 }
 .pin-badge {
   position: absolute;
-  top: -9px; left: 6px;
+  top: -64%; left: 43%;
   transform: rotate(45deg);
   min-width: 15px;
   height: 15px;

@@ -84,13 +84,26 @@ darkModeQuery.addEventListener('change', () => {
   }
 });
 
-function pinIcon(count) {
+// Pins are fixed CSS-pixel size in Leaflet by default, so a size tuned for
+// the zoomed-out regional view looks tiny once you've zoomed into a single
+// cluster where everything else on screen has gotten bigger. Scale pin size
+// with zoom instead: smaller when zoomed out (less clutter across many
+// close-together pins), bigger when zoomed in (easier to see/tap).
+const PIN_MIN_ZOOM = 4, PIN_MAX_ZOOM = 14;
+const PIN_MIN_SIZE = 12, PIN_MAX_SIZE = 24;
+
+function pinSizeForZoom(zoom) {
+  const t = Math.max(0, Math.min(1, (zoom - PIN_MIN_ZOOM) / (PIN_MAX_ZOOM - PIN_MIN_ZOOM)));
+  return Math.round(PIN_MIN_SIZE + (PIN_MAX_SIZE - PIN_MIN_SIZE) * t);
+}
+
+function pinIcon(count, size) {
   const badge = count > 1 ? `<span class="pin-badge">${count > 99 ? '99+' : count}</span>` : '';
   return L.divIcon({
     className: '',
-    html: `<div class="pin-dot">${badge}</div>`,
-    iconSize: [14, 14],
-    iconAnchor: [7, 14],
+    html: `<div class="pin-dot" style="width:${size}px;height:${size}px;">${badge}</div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size],
   });
 }
 
@@ -195,6 +208,10 @@ map.on('zoomend', () => {
   if (choroplethLayer && currentChoroplethStyleFn) {
     choroplethLayer.setStyle(currentChoroplethStyleFn);
   }
+  const size = pinSizeForZoom(map.getZoom());
+  markers.forEach(m => {
+    if (m.__pinCount != null) m.setIcon(pinIcon(m.__pinCount, size));
+  });
 });
 
 function projectPopupInner(p) {
@@ -259,7 +276,8 @@ function render() {
     const p0 = group[0];
     visibleCount += group.length;
 
-    const marker = L.marker([p0.lat, p0.lng], { icon: pinIcon(group.length) }).addTo(map);
+    const marker = L.marker([p0.lat, p0.lng], { icon: pinIcon(group.length, pinSizeForZoom(map.getZoom())) }).addTo(map);
+    marker.__pinCount = group.length;
     marker.bindPopup(popupHtml(group));
 
     if (labelsOn) {
