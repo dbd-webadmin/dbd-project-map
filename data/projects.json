@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-25T15:52:10.287Z",
+  "generatedAt": "2026-09-25T15:56:25.516Z",
   "count": 318,
   "projects": [
     {
@@ -4288,13 +4288,13 @@
     },
     {
       "id": "P329",
-      "client": "",
+      "client": "Butte-Silver Bow",
       "state": "MT",
       "location": "Butte City",
       "title": "Butte MT Wayfinding",
       "contractPeriod": "2023",
-      "category": "",
-      "narrative": "",
+      "category": "Wayfinding/Signage",
+      "narrative": "DbD developed a citywide wayfinding location and directional plan for Butte-Silver Bow, MT, identifying vehicular and pedestrian sign locations, types, and content across the city's key destinations. The engagement continued into signage design, producing conceptual designs aligned with the city's existing brand, design-intent construction specifications, and construction documentation to prepare the wayfinding system for fabrication and installation.",
       "contactName": "",
       "contactEmail": "",
       "websiteLink": "",
