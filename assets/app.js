@@ -118,6 +118,7 @@ let allProjects = [];
 let markers = [];
 let labelsOn = false;
 let selectedCategories = new Set();
+let selectedStates = new Set();
 let searchTerm = '';
 let statesGeoJson = null;
 let choroplethLayer = null;
@@ -129,6 +130,7 @@ function categoryOf(p) {
 function passesFilters(p) {
   const cat = categoryOf(p);
   if (selectedCategories.size && !selectedCategories.has(cat)) return false;
+  if (selectedStates.size && !selectedStates.has(p.state)) return false;
   const term = searchTerm.trim().toLowerCase();
   if (term) {
     const hay = `${p.title} ${p.client} ${p.location} ${p.state} ${p.category}`.toLowerCase();
@@ -324,6 +326,34 @@ function buildFilters(projects) {
     });
 }
 
+function buildStateFilters(projects) {
+  const counts = {};
+  projects.forEach(p => {
+    if (!p.state) return;
+    counts[p.state] = (counts[p.state] || 0) + 1;
+  });
+  const wrap = document.getElementById('state-filters');
+  wrap.innerHTML = '';
+  Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([state, count]) => {
+      const chip = document.createElement('div');
+      chip.className = 'filter-chip';
+      chip.innerHTML = `<span>${esc(state)}</span><span class="count">${count}</span>`;
+      chip.addEventListener('click', () => {
+        if (selectedStates.has(state)) {
+          selectedStates.delete(state);
+          chip.classList.remove('selected');
+        } else {
+          selectedStates.add(state);
+          chip.classList.add('selected');
+        }
+        render();
+      });
+      wrap.appendChild(chip);
+    });
+}
+
 function addOfficeMarker() {
   const marker = L.marker([OFFICE.lat, OFFICE.lng], { icon: officeIcon, zIndexOffset: 1000 }).addTo(map);
   marker.bindPopup(`
@@ -355,6 +385,7 @@ async function init() {
   document.getElementById('geocoded-count').textContent = withCoords.length;
 
   buildFilters(allProjects);
+  buildStateFilters(allProjects);
   render();
   addOfficeMarker();
 
@@ -371,6 +402,7 @@ async function init() {
 
   document.getElementById('clear-filters').addEventListener('click', () => {
     selectedCategories.clear();
+    selectedStates.clear();
     searchTerm = '';
     document.getElementById('search').value = '';
     document.querySelectorAll('.filter-chip.selected').forEach(c => c.classList.remove('selected'));
