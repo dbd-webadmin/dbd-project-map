@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-09-25T17:18:04.078Z",
-  "count": 314,
+  "generatedAt": "2026-09-25T17:24:43.911Z",
+  "count": 313,
   "projects": [
     {
       "id": "P001",
@@ -2943,8 +2943,8 @@
       "location": "Brentwood City",
       "title": "Branding Initiative",
       "contractPeriod": "~2026",
-      "category": "",
-      "narrative": "",
+      "category": "Branding",
+      "narrative": "DbD is developing a citywide brand identity for Brentwood, MO, the \"City of Warmth,\" through discovery and stakeholder engagement -- a two-day field visit, leadership and department interviews, and a review of existing brand and communications assets -- followed by a foundational brand strategy defining the city's positioning, values, and tagline direction. The engagement continues into a full logo and visual identity system, including alignment guidance for the Police, Fire, and Parks & Recreation departmental logos, a brand standards guide, key branded applications such as vehicle wraps, flags, and light-pole banners, and a community survey to ground the brand in resident perceptions and priorities.",
       "contactName": "",
       "contactEmail": "",
       "websiteLink": "",
@@ -4607,24 +4607,6 @@
       "planLink": "",
       "lat": 36.0156735,
       "lng": -82.1587351,
-      "source": "Legacy",
-      "notes": "From legacy archive (Finished)"
-    },
-    {
-      "id": "P365",
-      "client": "",
-      "state": "IA",
-      "location": "Denison City",
-      "title": "Denison Iowa",
-      "contractPeriod": "Completed (year unknown)",
-      "category": "",
-      "narrative": "",
-      "contactName": "",
-      "contactEmail": "",
-      "websiteLink": "",
-      "planLink": "",
-      "lat": 42.0177718,
-      "lng": -95.3553286,
       "source": "Legacy",
       "notes": "From legacy archive (Finished)"
     },
