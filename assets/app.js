@@ -122,6 +122,10 @@ let selectedStates = new Set();
 let searchTerm = '';
 let statesGeoJson = null;
 let choroplethLayer = null;
+// Leaflet's default SVG renderer is known to drop out of html2canvas PNG
+// exports in some browsers (e.g. Safari); painting the choropleth on a
+// canvas pane instead keeps it reliably in the exported image everywhere.
+const choroplethRenderer = L.canvas({ padding: 0.5 });
 
 function categoryOf(p) {
   return p.category && p.category.trim() ? p.category.trim() : 'Uncategorized';
@@ -194,6 +198,7 @@ function renderChoropleth() {
 
   choroplethLayer = L.geoJSON(statesGeoJson, {
     style: currentChoroplethStyleFn,
+    renderer: choroplethRenderer,
     onEachFeature: (feature, layer) => {
       const abbr = STATE_NAME_TO_ABBR[feature.properties.name];
       const count = counts[abbr] || 0;
