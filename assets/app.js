@@ -1,4 +1,8 @@
-const OFFICE = { lat: 36.1980505, lng: -81.6554484, name: 'Destination by Design HQ', address: '136 Furman Road, Suite 6, Boone, NC 28607' };
+const OFFICES = [
+  { lat: 36.1980505, lng: -81.6554484, name: 'Destination by Design HQ', address: '136 Furman Road, Suite 6, Boone, NC 28607' },
+  { lat: 35.9943349, lng: -78.9032336, name: 'Destination by Design – Durham Office', address: '324 Blackwell St., Ste. 900, Durham, NC 27701' },
+];
+const OFFICE = OFFICES[0];
 
 const STATE_NAME_TO_ABBR = {
   'Alabama':'AL','Alaska':'AK','Arizona':'AZ','Arkansas':'AR','California':'CA','Colorado':'CO',
@@ -359,15 +363,18 @@ function buildStateFilters(projects) {
     });
 }
 
-function addOfficeMarker() {
-  const marker = L.marker([OFFICE.lat, OFFICE.lng], { icon: officeIcon, zIndexOffset: 1000 }).addTo(map);
-  marker.bindPopup(`
-    <div class="popup-title">${esc(OFFICE.name)}</div>
-    <div class="popup-loc">${esc(OFFICE.address)}</div>
-  `);
+function addOfficeMarkers() {
+  const officeMarkers = OFFICES.map(o => {
+    const marker = L.marker([o.lat, o.lng], { icon: officeIcon, zIndexOffset: 1000 }).addTo(map);
+    marker.bindPopup(`
+      <div class="popup-title">${esc(o.name)}</div>
+      <div class="popup-loc">${esc(o.address)}</div>
+    `);
+    return marker;
+  });
   document.getElementById('office-watermark').addEventListener('click', () => {
     map.flyTo([OFFICE.lat, OFFICE.lng], 15, { duration: 1.1 });
-    marker.openPopup();
+    officeMarkers[0].openPopup();
   });
 }
 
@@ -392,7 +399,7 @@ async function init() {
   buildFilters(allProjects);
   buildStateFilters(allProjects);
   render();
-  addOfficeMarker();
+  addOfficeMarkers();
 
   document.getElementById('label-toggle').addEventListener('click', (e) => {
     labelsOn = !labelsOn;
