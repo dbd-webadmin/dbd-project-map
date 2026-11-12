@@ -1,6 +1,7 @@
 const OFFICES = [
   { lat: 36.1980505, lng: -81.6554484, name: 'Destination by Design HQ', address: '136 Furman Road, Suite 6, Boone, NC 28607' },
   { lat: 35.9943349, lng: -78.9032336, name: 'Destination by Design – Durham Office', address: '324 Blackwell St., Ste. 900, Durham, NC 27701' },
+  { lat: 35.9418599, lng: -83.9761350, name: 'Destination by Design – Knoxville Office', address: '4315 Kingston Pike, Suite 210, Knoxville, TN 37919' },
 ];
 const OFFICE = OFFICES[0];
 
